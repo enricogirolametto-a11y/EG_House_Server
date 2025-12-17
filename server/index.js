@@ -6,14 +6,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Configurazione connessione Postgres
+/* // Configurazione connessione Postgres
 const pool = new Pool({
   user: 'user',
   host: 'localhost',
   database: 'mydb',
   password: 'password',
   port: 5432,
+}); */
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false } // Necessario per connessioni cloud sicure
 });
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
 
 // Rotta per salvare i dati
 app.post('/api/data', async (req, res) => {
