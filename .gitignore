@@ -1,0 +1,21 @@
+# Dipendenze (non caricarle mai perché pesanti)
+node_modules/
+vendor/
+
+# File di ambiente (contengono password o chiavi API)
+.env
+.env.local
+
+# File di log e temporanei
+*.log
+npm-debug.log*
+tmp/
+
+# File specifici del Sistema Operativo o dell'IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Cartelle di build/output
+dist/
+build/
