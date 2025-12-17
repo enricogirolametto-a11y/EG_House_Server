@@ -1,8 +1,12 @@
 {
   "name": "eg_house_server",
+  "private": true,
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "dev:client": "npm start -w client",
+    "dev:server": "npm start -w server",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,5 +16,8 @@
   "workspaces": [
     "client",
     "server"
-  ]
+  ],
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
 }
