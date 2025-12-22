@@ -3,22 +3,49 @@ const cors = require('cors');
 const { Pool } = require('pg');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173'
+}));
 app.use(express.json());
 
-/* // Configurazione connessione Postgres
-const pool = new Pool({
-  user: 'user',
-  host: 'localhost',
-  database: 'mydb',
-  password: 'password',
-  port: 5432,
-}); */
+const isProduction = process.env.DATABASE_URL ? true : false;
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false } // Necessario per connessioni cloud sicure
-});
+const pool = new Pool(
+  isProduction
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false },
+      }
+    : {
+        // Configurazione per Docker Locale
+        user: 'user',
+        host: 'localhost',
+        database: 'mydb',
+        password: 'password', // Assicurati che sia una stringa
+        port: 5432,
+        ssl: false
+      }
+);
+
+// Funzione per inizializzare il DB automaticamente
+const inizializzaDB = async () => {
+  const queryText = `
+    CREATE TABLE IF NOT EXISTS messaggi (
+      id SERIAL PRIMARY KEY,
+      contenuto TEXT,
+      data_invio TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+  try {
+    await pool.query(queryText);
+    console.log("Database locale pronto: tabella 'messaggi' verificata.");
+  } catch (err) {
+    console.error("Errore inizializzazione tabella:", err);
+  }
+};
+
+inizializzaDB();
+
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
