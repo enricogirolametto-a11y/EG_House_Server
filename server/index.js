@@ -3,9 +3,30 @@ const cors = require('cors');
 const { Pool } = require('pg');
 
 const app = express();
+
+
+const cors = require('cors');
+
+// Configurazione CORS dinamica
+const allowedOrigins = [
+  'http://localhost:5173',                   // Per lo sviluppo locale con Vite
+  'https://eg-house-server-client.vercel.app' // Il tuo URL di produzione su Vercel
+];
+
 app.use(cors({
-  origin: 'http://localhost:5173'
+  origin: function (origin, callback) {
+    // Permette richieste senza origine (come app mobile o curl) 
+    // o se l'origine è nella lista degli autorizzati
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Non autorizzato da CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json());
 
 const isProduction = process.env.DATABASE_URL ? true : false;
