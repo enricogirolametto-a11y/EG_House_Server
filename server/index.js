@@ -1,3 +1,4 @@
+const { clerkMiddleware, requireAuth } = require('@clerk/clerk-sdk-node');
 const express = require('express');
 const { Pool } = require('pg');
 const app = express();
@@ -26,6 +27,29 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+app.use(clerkMiddleware()); // Inizializza il middleware di Clerk
+// Proteggi la rotta POST con requireAuth()
+app.post('/api/data', requireAuth(), async (req, res) => {
+  const { testo } = req.body;
+// Ora puoi accedere all'ID utente autenticato tramite req.auth
+  const userId = req.auth.userId; 
+  console.log(`Richiesta ricevuta dall'utente Clerk: ${userId}`);
+try {
+    // Salviamo anche l'userId nel DB per tracciare chi scrive cosa
+    const result = await pool.query(
+      'INSERT INTO messaggi (contenuto, user_id) VALUES ($1, $2) RETURNING *', 
+      [testo, userId]
+    );
+    res.json({ message: "Dati salvati con successo!", dato: result.rows[0] });
+  } catch (err) {
+    console.error("Errore DB:", err);
+    res.status(500).json({ error: "Errore nel salvataggio" });
+  }
+});
+
+
+
 
 const isProduction = process.env.DATABASE_URL ? true : false;
 
