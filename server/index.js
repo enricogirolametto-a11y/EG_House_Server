@@ -93,11 +93,16 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 // Rotta per salvare i dati
 app.post("/api/data", async (req, res) => {
   const { testo } = req.body;
+  const clerkUserId = req.auth.userId;
 
+  if (!clerkUserId) {
+    return res.status(401).json({ error: "Utente non identificato" });
+  }
+  
   try {
     const result = await pool.query(
-      "INSERT INTO messaggi (contenuto) VALUES ($1) RETURNING *",
-      [testo]
+      "INSERT INTO messaggi (contenuto, user_id) VALUES ($1, $2) RETURNING *",
+      [testo, clerkUserId]
     );
     console.log("Salvato nel DB:", result.rows[0]);
     res.json({
