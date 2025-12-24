@@ -1,7 +1,10 @@
 const express = require("express");
 const { Pool } = require("pg");
 const app = express();
-const { clerkMiddleware, requireAuth } = require('@clerk/clerk-sdk-node')
+
+const ClerkExpress = require('@clerk/clerk-sdk-node');
+const clerkMiddleware = ClerkExpress.clerkMiddleware;
+const requireAuth = ClerkExpress.requireAuth;
 
 const cors = require("cors");
 
