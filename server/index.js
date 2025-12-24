@@ -2,6 +2,8 @@ const express = require("express");
 const { Pool } = require("pg");
 const cors = require("cors");
 const { clerkClient, ClerkExpressWithAuth, ClerkExpressRequireAuth } = require('@clerk/clerk-sdk-node');
+require('dotenv').config();
+console.log("TEST CHIAVE CLERK:", process.env.CLERK_SECRET_KEY ? "Presente" : "Mancante");
 
 
 const app = express();
