@@ -1,33 +1,10 @@
 const express = require("express");
 const { Pool } = require("pg");
 const cors = require("cors");
-const { clerkMiddleware, requireAuth } = require("@clerk/clerk-sdk-node");
+const { clerkClient, ClerkExpressWithAuth, ClerkExpressRequireAuth } = require('@clerk/clerk-sdk-node');
+
 
 const app = express();
-
-// Configurazione CORS dinamica
-/* const allowedOrigins = [
-  "http://localhost:5173", // Per lo sviluppo locale con Vite
-  "https://eg-house-server-client.vercel.app", // Il tuo URL di produzione su Vercel
-];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Permette richieste senza origine (come app mobile o curl)
-      // o se l'origine è nella lista degli autorizzati
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error("Non autorizzato da CORS"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
-
-app.use(express.json()); */
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -50,22 +27,19 @@ app.use(
 
 app.use(express.json());
 
-app.use(clerkMiddleware()); // Inizializza il middleware di Clerk
+app.use(ClerkExpressWithAuth());
 
-app.post("/api/data", requireAuth(), async (req, res) => {
+app.post("/api/data", ClerkExpressRequireAuth(), async (req, res) => {
   const { testo } = req.body;
-  const userId = req.auth.userId; // Recuperato dal token Clerk
-
-  if (!userId) {
-    return res.status(401).json({ error: "Utente non autorizzato" });
-  }
+  
+  // Con questo middleware, l'ID utente è in req.auth.userId
+  const userId = req.auth.userId;
 
   try {
     const result = await pool.query(
       "INSERT INTO messaggi (contenuto, user_id) VALUES ($1, $2) RETURNING *",
       [testo, userId]
     );
-    console.log(`Messaggio salvato per l'utente: ${userId}`);
     res.json({ message: "Dati salvati con successo!", dato: result.rows[0] });
   } catch (err) {
     console.error("Errore DB:", err);
@@ -115,31 +89,6 @@ inizializzaDB();
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-/* // Rotta per salvare i dati
-app.post("/api/data", async (req, res) => {
-  const { testo } = req.body;
-  const clerkUserId = req.auth.userId;
-
-  if (!clerkUserId) {
-    return res.status(401).json({ error: "Utente non identificato" });
-  }
-
-  try {
-    const result = await pool.query(
-      "INSERT INTO messaggi (contenuto, user_id) VALUES ($1, $2) RETURNING *",
-      [testo, clerkUserId]
-    );
-    console.log("Salvato nel DB:", result.rows[0]);
-    res.json({
-      message: "Dati salvati nel DB!",
-      dato: result.rows[0],
-    });
-  } catch (err) {
-    console.error("Errore DB:", err);
-    res.status(500).json({ error: "Errore nel salvataggio" });
-  }
-}); */
-
 // Rotta extra per vedere tutti i messaggi (opzionale)
 app.get("/api/data", async (req, res) => {
   try {
@@ -152,4 +101,3 @@ app.get("/api/data", async (req, res) => {
   }
 });
 
-/* app.listen(3001, () => console.log("Server running on port 3001 con Postgres")); */
