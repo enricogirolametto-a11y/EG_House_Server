@@ -23,6 +23,16 @@ function App() {
     setLoading(true);
     try {
       const token = await getToken(); // 1. Recupera il token JWT da Clerk
+
+
+    console.log("TOKEN CLERK:", token); // <-- SE QUESTO È NULL, IL PROBLEMA È IL LOGIN
+    
+    if (!token) {
+        alert("Errore: Clerk non ha generato il token. Riprova il login.");
+        return;
+    }
+
+
       const res = await axios.post(
         `${API_URL}/api/data`, // Usa il backtick ` e la variabile
         { testo: input },
