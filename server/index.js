@@ -2,7 +2,8 @@ require('dotenv').config();
 const express = require("express");
 const { Pool } = require("pg");
 const cors = require("cors");
-const { clerkClient, ClerkExpressWithAuth, ClerkExpressRequireAuth } = require('@clerk/clerk-sdk-node');
+//const { ClerkExpressWithAuth, ClerkExpressRequireAuth } = require('@clerk/clerk-sdk-node');
+const{ clerkMiddleware, getAuth } =require('@clerk/express');
 console.log("TEST CHIAVE CLERK:", process.env.CLERK_SECRET_KEY ? "Presente" : "Mancante");
 
 
@@ -29,14 +30,20 @@ app.use(
 
 app.use(express.json());
 
-app.use(ClerkExpressWithAuth());
+app.use(clerkMiddleware());
 
-app.post("/api/data", ClerkExpressRequireAuth(), async (req, res) => {
+app.post("/api/data", async (req, res) => {
   console.log("Auth OK per utente:", req.auth.userId);
-  const { testo } = req.body;
+
   
-  // Con questo middleware, l'ID utente è in req.auth.userId
-  const userId = req.auth.userId;
+  const userId = getAuth(req).userId
+if (!userId) {
+    return res.status(401).json({ error: "Non autorizzato" });
+  }
+
+    console.log("Auth OK per utente:", userId);
+  const { testo } = req.body;
+
 
   try {
     const result = await pool.query(
@@ -91,16 +98,4 @@ inizializzaDB();
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-// Rotta extra per vedere tutti i messaggi (opzionale)
-app.get("/api/data", async (req, res) => {
-  try {
-    const result = await pool.query(
-      "SELECT * FROM messaggi ORDER BY data_invio DESC"
-    );
-    res.json(result.rows);
-  } catch (err) {
-    res.status(500).json({ error: "Errore nel recupero dati" });
-  }
-});
 
