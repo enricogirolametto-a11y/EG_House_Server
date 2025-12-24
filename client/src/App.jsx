@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@clerk/clerk-react";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 function App() {
   const { getToken } = useAuth(); // Hook per recuperare il token
   const [input, setInput] = useState("");
@@ -22,13 +24,9 @@ function App() {
     try {
       const token = await getToken(); // 1. Recupera il token JWT da Clerk
       const res = await axios.post(
-        "http://localhost:3001/api/data",
+        `${API_URL}/api/data`, // Usa il backtick ` e la variabile
         { testo: input },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert(res.data.message);
       setInput("");
