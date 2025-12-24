@@ -30,6 +30,7 @@ app.use(express.json());
 app.use(ClerkExpressWithAuth());
 
 app.post("/api/data", ClerkExpressRequireAuth(), async (req, res) => {
+  console.log("Auth OK per utente:", req.auth.userId);
   const { testo } = req.body;
   
   // Con questo middleware, l'ID utente è in req.auth.userId
