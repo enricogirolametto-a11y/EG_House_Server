@@ -2,7 +2,7 @@
   "name": "eg_house_server",
   "private": true,
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "index.js",
   "scripts": {
     "dev:server": "npm run dev -w server",
     "dev:client": "npm run dev -w client",

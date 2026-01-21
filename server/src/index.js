@@ -1,6 +1,6 @@
 require("dotenv").config();
-import express from 'express'
-import cors from 'cors'
+import express from "express";
+import cors from "cors";
 import { clerkMiddleware, getAuth } from "@clerk/express";
 import { Pool } from "pg";
 //const { Pool } = require("pg");
@@ -21,7 +21,7 @@ app.use(
       } else {
         callback(new Error("Non autorizzato da CORS"));
       }
-    }, 
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -33,7 +33,7 @@ app.use(clerkMiddleware());
 
 app.post("/api/data", async (req, res) => {
   const { userId } = getAuth(req); // Usa getAuth correttamente
-  console.log("SONO entrato nel server QUI")
+  console.log("SONO entrato nel server QUI");
   if (!userId) {
     return res.status(401).json({ error: "Non autorizzato" });
   }
