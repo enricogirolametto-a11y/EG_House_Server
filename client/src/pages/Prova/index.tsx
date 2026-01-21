@@ -1,18 +1,16 @@
-import { useState } from "react";
-import axios from "axios";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { UserButton } from "@clerk/clerk-react";
+import { Link } from "react-router-dom";
+
+import { useState } from "react";
+import axios from "axios";
+
 import { useAuth } from "@clerk/clerk-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-function App() {
+export default function Prova() {
   const { getToken } = useAuth(); // Hook per recuperare il token
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,11 +21,11 @@ function App() {
     setLoading(true);
     try {
       const token = await getToken(); // 1. Recupera il token JWT da Clerk
-    
-    if (!token) {
+
+      if (!token) {
         alert("Errore: Clerk non ha generato il token. Riprova il login.");
         return;
-    }
+      }
       const res = await axios.post(
         `${API_URL}/api/data`, // Usa il backtick ` e la variabile
         { testo: input },
@@ -44,28 +42,15 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-4">
-      {/* SE L'UTENTE NON È LOGGATO: Mostra pulsante di login */}
-      <SignedOut>
-        <div className="text-center space-y-4 bg-white p-8 rounded-xl shadow-sm border">
-          <h1 className="text-2xl font-bold">Benvenuto in EG House</h1>
-          <p className="text-slate-500">Accedi per gestire il server</p>
-          <SignInButton mode="modal">
-            <Button className="w-full">Accedi con Google</Button>
-          </SignInButton>
-        </div>
-      </SignedOut>
-
-      {/* SE L'UTENTE È LOGGATO: Mostra l'app e il tasto Logout */}
-      <SignedIn>
-        <div className="absolute top-4 right-4">
-          <UserButton afterSignOutUrl="/" />
-        </div>
-
+    <>
+      <div className="absolute top-4 right-5">
+        <UserButton afterSignOutUrl="/" />
+      </div>
+      <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="flex flex-col items-center justify-center min-h-screen gap-6 bg-slate-50 p-4">
           <div className="max-w-md w-full space-y-4 bg-white p-8 rounded-xl shadow-sm border border-slate-200">
             <h1 className="text-2xl font-bold text-slate-900 text-center">
-              Gestione Monorepo 2025
+              EGH SERVER
             </h1>
 
             <div className="space-y-2">
@@ -85,13 +70,18 @@ function App() {
             </Button>
 
             <p className="text-xs text-slate-400 text-center">
-              Backend: localhost:3001 | Frontend: Vite + Shadcn
+              Backend: localhost:5173 | Frontend: Vite + Shadcn
             </p>
           </div>
         </div>
-      </SignedIn>
-    </div>
+
+        <h1 className="text-3xl font-light text-slate-500 italic">
+          Pagina Neutra
+        </h1>
+        <Link to="/" className="text-red-500 text-2xl">
+          Torna Indietro
+        </Link>
+      </div>
+    </>
   );
 }
-
-export default App;

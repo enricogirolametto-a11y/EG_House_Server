@@ -1,12 +1,11 @@
-require('dotenv').config();
-const express = require("express");
-const { Pool } = require("pg");
-const cors = require("cors");
-//const { ClerkExpressWithAuth, ClerkExpressRequireAuth } = require('@clerk/clerk-sdk-node');
-const{ clerkMiddleware, getAuth } =require('@clerk/express');
-console.log("TEST CHIAVE CLERK:", process.env.CLERK_SECRET_KEY ? "Presente" : "Mancante");
-
-
+require("dotenv").config();
+import express from 'express'
+import cors from 'cors'
+import { clerkMiddleware, getAuth } from "@clerk/express";
+import { Pool } from "pg";
+//const { Pool } = require("pg");
+//const cors = require("cors");
+//const { clerkMiddleware, getAuth } = require("@clerk/express");
 const app = express();
 
 const allowedOrigins = [
@@ -22,7 +21,7 @@ app.use(
       } else {
         callback(new Error("Non autorizzato da CORS"));
       }
-    },
+    }, 
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -33,17 +32,18 @@ app.use(express.json());
 app.use(clerkMiddleware());
 
 app.post("/api/data", async (req, res) => {
-  console.log("Auth OK per utente:", req.auth.userId);
-
-  
-  const userId = getAuth(req).userId
-if (!userId) {
+  const { userId } = getAuth(req); // Usa getAuth correttamente
+  console.log("SONO entrato nel server QUI")
+  if (!userId) {
     return res.status(401).json({ error: "Non autorizzato" });
   }
 
-    console.log("Auth OK per utente:", userId);
   const { testo } = req.body;
+  if (!testo) {
+    return res.status(400).json({ error: "Testo mancante" });
+  }
 
+  console.log("Auth OK per utente:", userId);
 
   try {
     const result = await pool.query(
@@ -98,4 +98,3 @@ inizializzaDB();
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
